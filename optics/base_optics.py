@@ -12,12 +12,16 @@ class BaseOptics(metaclass=ABCMeta):
         self.position = position
         self.axis = axis
         self.propagation_matrix = np.eye(2)
+        self.selected = False
 
     @property
     def coordinates(self):
         return np.atleast_1d((self.position, 0))
 
     def draw(self, color):
+        if self.selected:
+            color = constants.HIGHLIGHT_COLOR
+
         base = self.coordinates
         perp = np.atleast_1d((0, 1))
         bottom = base - constants.OBJECT_HALF_HEIGHT * perp
@@ -26,9 +30,11 @@ class BaseOptics(metaclass=ABCMeta):
         bottom = self.axis.to_absolute_coordinates(bottom)
         top = self.axis.to_absolute_coordinates(top)
 
-        gl.glLineWidth(4)
+        gl.glLineWidth(constants.OPTICS_WIDTH)
         gl.glColor3f(*color)
 
         graphics.draw(2, gl.GL_LINES,
                       ('v2i', (*bottom.astype(int), *top.astype(int)))
                       )
+
+        return color

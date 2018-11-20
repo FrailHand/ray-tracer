@@ -3,6 +3,7 @@ from pyglet import gl
 from pyglet import graphics
 from sortedcontainers import SortedList
 
+import constants
 from optics.source import Source
 from optics.ray import Ray
 
@@ -59,11 +60,11 @@ class Axis:
     def draw(self):
         gl.glPushAttrib(gl.GL_ENABLE_BIT)
 
-        gl.glLineStipple(2, 0x2727)
-        gl.glLineWidth(2)
+        gl.glLineStipple(*constants.AXIS_DASH)
+        gl.glLineWidth(constants.AXIS_WIDTH)
         gl.glEnable(gl.GL_LINE_STIPPLE)
 
-        gl.glColor3f(0, 0, 0)
+        gl.glColor3f(*constants.AXIS_COLOR)
         graphics.draw(2, gl.GL_LINES,
                       ('v2i', (*self.origin.astype(int), *self.end.astype(int)))
                       )
@@ -71,9 +72,8 @@ class Axis:
         gl.glPopAttrib()
 
         for ray in self.rays:
-            gl.glLineWidth(1)
-
-            gl.glColor3f(0, 0.9, 0.5)
+            gl.glLineWidth(constants.RAY_WIDTH)
+            gl.glColor3f(*constants.RAY_COLOR)
 
             points = len(ray)
             ray_path = np.array(ray).transpose()

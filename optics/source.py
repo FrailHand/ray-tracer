@@ -1,6 +1,9 @@
 from optics.base_optics import BaseOptics
 import numpy as np
 
+import constants
+
+
 class Source(BaseOptics):
     def __init__(self, position, axis, visible=True):
         super().__init__(position, axis)
@@ -9,7 +12,7 @@ class Source(BaseOptics):
 
     def draw(self):
         if self.visible:
-            super().draw((0.9, 0.8, 0.1))
+            super().draw(constants.SOURCE_COLOR)
 
     def add_ray(self, height, angle):
         angle = np.deg2rad(angle)

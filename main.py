@@ -16,6 +16,7 @@ light.add_ray(0, -10)
 lens = thin_lens.ThinLens(300, ax, 100)
 ax.add_optics(lens)
 lens = thin_lens.ThinLens(750, ax, 150)
+lens.selected = True
 ax.add_optics(lens)
 
 ax.add_optics(light)
