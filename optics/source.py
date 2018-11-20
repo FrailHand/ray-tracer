@@ -6,13 +6,13 @@ import constants
 
 class Source(BaseOptics):
     def __init__(self, position, axis, visible=True):
-        super().__init__(position, axis)
+        super().__init__(position, axis, constants.SOURCE_COLOR)
         self.visible = visible
         self.rays = []
 
     def draw(self):
         if self.visible:
-            super().draw(constants.SOURCE_COLOR)
+            super().draw()
 
     def add_ray(self, height, angle):
         angle = np.deg2rad(angle)

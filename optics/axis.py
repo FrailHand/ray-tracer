@@ -1,7 +1,6 @@
 import numpy as np
 from pyglet import gl
 from pyglet import graphics
-from sortedcontainers import SortedList
 
 import constants
 from optics.source import Source
@@ -23,18 +22,19 @@ class Axis:
         sin = self.direction[1]
         self.rotation_matrix = np.array([[cos, -sin], [sin, cos]])
 
-        self.optics = SortedList(key=lambda x: x.position)
+        self.optics = []
         self.rays = []
 
     def add_optics(self, optics):
-        self.optics.add(optics)
+        self.optics.append(optics)
         if optics.position > self.length - 100:
             self.set_length(optics.position + 100)
 
     def trace_rays(self):
         rays = []
 
-        for optics in self.optics:
+        sorted_optics = sorted(self.optics, key=lambda x: x.position)
+        for optics in sorted_optics:
             for ray in rays:
                 ray.go_through(optics)
 
@@ -53,9 +53,43 @@ class Axis:
             return rotated + np.atleast_2d(self.origin).transpose()
         return rotated + self.origin
 
+    def to_relative_coordinates(self, coordinates):
+        rotated = self.rotation_matrix.transpose().dot(coordinates)
+        if coordinates.ndim > 1:
+            return rotated - np.atleast_2d(self.origin).transpose()
+        return rotated - self.origin
+
+    def distance(self, coordinates):
+        relative = self.to_relative_coordinates(coordinates)
+        if 0 < relative[0] < self.length:
+            dist = abs(relative[1])
+            if dist > constants.OBJECT_HALF_HEIGHT:
+                return -1
+            return dist
+        else:
+            return -1
+
+    def select(self, coordinates):
+        relative = self.to_relative_coordinates(coordinates)
+        selector = relative[0]
+        sorted_optics = sorted(self.optics, key=lambda x: x.position)
+
+        nearest = None
+        dist = -1
+        for optic in sorted_optics:
+            current = abs(optic.position - selector)
+            if current < constants.OBJECT_HALF_HEIGHT:
+                if dist == -1 or current < dist:
+                    dist = current
+                    nearest = optic
+        return nearest
+
     def set_length(self, length):
         self.length = length
         self.end = self.origin + self.direction * self.length
+
+    def project(self, coord):
+        return self.to_relative_coordinates(coord)[0]
 
     def draw(self):
         gl.glPushAttrib(gl.GL_ENABLE_BIT)
